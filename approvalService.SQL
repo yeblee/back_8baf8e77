@@ -32,7 +32,7 @@ CREATE TABLE APPROVAL_STEP (
     `comment`       TEXT        NULL COMMENT '코멘트',
     `created_at`    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성된 날짜',
     `updated_at`    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정된 날짜',
-	UNIQUE KEY `uk_document_step` (`document_id`, `step_order`), -- 한 결재 문서 내에서 결제 단계가 두명 이상 지정되는 것 금지
+	UNIQUE KEY `uk_document_step` (`document_id`, `step_order`), -- 한 결재 문서 내에서 하나의 결제 단계에 두명 이상 지정되는 것 금지
     FOREIGN KEY (`document_id`) REFERENCES APPROVAL_DOCUMENT(`document_id`),
     FOREIGN KEY (`approver_id`) REFERENCES USER(`user_id`)
 ) COMMENT = '결재 문서별 상세 결재단계 내용';
