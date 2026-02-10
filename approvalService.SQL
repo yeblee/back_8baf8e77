@@ -49,13 +49,5 @@ SELECT
     d.title,
     u_req.name AS requester_name,  
     s.step_order AS my_turn,        
-    d.high_step AS high_step,
-    d.created_at
-FROM APPROVAL_DOCUMENT d
-JOIN APPROVAL_STEP s ON d.document_id = s.document_id
-JOIN USER u_req ON d.requester_id = u_req.user_id
-WHERE s.approver_id = 2             -- '2'번 사용자가 로그인했다고 가정
-  AND s.state = 'WAIT'              -- 내가 아직 승인하지 않았고
-  AND d.status = 'PENDING'          -- 문서 전체가 아직 진행 중이며
-  AND d.current_step = s.step_order;   -- 현재 문서의 단계가 바로 내 차례일 때!
+    d.high_때
   
