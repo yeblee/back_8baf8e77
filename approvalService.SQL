@@ -42,7 +42,7 @@ SELECT * FROM APPROVAL_DOCUMENT;
 SELECT * FROM APPROVAL_STEP;
 
 CREATE INDEX idx_step ON APPROVAL_STEP (approver_id, state, step_order);
-CREATE INDEX idx_doc ON APPROVAL_DOCUMENT (document_id, status, current_step);
+CREATE INDEX idx_doc ON APPROVAL_DOCUMENT (status, current_step);
 
 SELECT 
     d.document_id,
@@ -57,5 +57,5 @@ JOIN USER u_req ON d.requester_id = u_req.user_id
 WHERE s.approver_id = 2             -- 2번 사용자가 결재해야 하는
   AND s.state = 'WAIT'              -- 아직 응답하지 않았고
   AND d.status = 'PENDING'          -- 문서 전체가 진행 중이며
-  AND d.current_order = s.step_order;   -- 현재 결재 단계가 내가 처리해야 하는 단계일 떄
+  AND d.current_step = s.step_order;   -- 현재 결재 단계가 내가 처리해야 하는 단계일 떄
   
