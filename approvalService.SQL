@@ -48,7 +48,7 @@ SELECT
     d.document_id,
     d.title,
     u_req.name AS requester_name,  
-    s.step_order AS my_turn,        
+    s.step_order AS my_step_order,  
     d.high_step AS high_step,
     d.created_at
 FROM APPROVAL_DOCUMENT d
