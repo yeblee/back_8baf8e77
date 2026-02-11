@@ -37,25 +37,25 @@ CREATE TABLE APPROVAL_STEP (
     FOREIGN KEY (`approver_id`) REFERENCES USER(`user_id`)
 ) COMMENT = '결재 문서별 상세 결재단계 내용';
 
-SELECT * FROM USER;
-SELECT * FROM APPROVAL_DOCUMENT;
-SELECT * FROM APPROVAL_STEP;
+-- SELECT * FROM USER;
+-- SELECT * FROM APPROVAL_DOCUMENT;
+-- SELECT * FROM APPROVAL_STEP;
 
 CREATE INDEX idx_step ON APPROVAL_STEP (approver_id, state, step_order);
-CREATE INDEX idx_doc ON APPROVAL_DOCUMENT (document_id, status, current_step);
+CREATE INDEX idx_doc ON APPROVAL_DOCUMENT (status, current_step);
 
 SELECT 
     d.document_id,
     d.title,
     u_req.name AS requester_name,  
-    s.step_order AS my_turn,        
+    s.step_order AS my_step_order,  
     d.high_step AS high_step,
     d.created_at
 FROM APPROVAL_DOCUMENT d
 JOIN APPROVAL_STEP s ON d.document_id = s.document_id
 JOIN USER u_req ON d.requester_id = u_req.user_id
-WHERE s.approver_id = 2             -- '2'번 사용자가 로그인했다고 가정
-  AND s.state = 'WAIT'              -- 내가 아직 승인하지 않았고
-  AND d.status = 'PENDING'          -- 문서 전체가 아직 진행 중이며
-  AND d.current_step = s.step_order;   -- 현재 문서의 단계가 바로 내 차례일 때!
+WHERE s.approver_id = 2             -- 2번 사용자가 결재해야 하는
+  AND s.state = 'WAIT'              -- 아직 응답하지 않았고
+  AND d.status = 'PENDING'          -- 문서 전체가 진행 중이며
+  AND d.current_step = s.step_order;   -- 현재 결재 단계가 내가 처리해야 하는 단계일 떄
   
