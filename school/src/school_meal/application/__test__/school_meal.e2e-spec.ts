@@ -15,8 +15,10 @@ describe('SchoolMeal (NEIS API Test)', () => {
 
     app.useGlobalPipes(
       new ValidationPipe({
-        transform: true, // 쿼리 string을 DTO에 맞게 변환
-        transformOptions: { enableImplicitConversion: true }, // 암묵적 타입 변환 허용
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
       }),
     );
 
@@ -25,7 +27,7 @@ describe('SchoolMeal (NEIS API Test)', () => {
 
   const allergyId = [1, 2]; // 내가 보유하고 있는 알레르기 식품 번호 입력
   const page = 1;
-  const limit = 4;
+  const limit = 5;
 
   it('/school_meal (GET(200)) - 한달 단위 알레르기 포함 식단 조회 api(데이터 구조, 알레르기 필터링 검증)', () => {
     return request(app.getHttpServer())
@@ -73,6 +75,23 @@ describe('SchoolMeal (NEIS API Test)', () => {
         expect(res.body.message[0]).toContain(
           'each value in allergy_id must be one of the following values',
         );
+      });
+  });
+
+  it('/school_meal (GET(200)) - 한달 단위 알레르기 포함 식단 조회 api(데이터 없음)', () => {
+    return request(app.getHttpServer())
+      .get('/school_meal')
+      .query({
+        atpt_ofcdc_sc_code: 'G10', // 대전교육청
+        sd_schul_code: '74303109', // 존재하지 않는 학교 code
+        mlsv_ym: '202503', //25년 3월분 조회
+        allergy_id: allergyId,
+        page: page,
+        limit: limit,
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.schul_nm === '학교 정보 없음');
       });
   });
 });
