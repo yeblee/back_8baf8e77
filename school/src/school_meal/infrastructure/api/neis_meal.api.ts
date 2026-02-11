@@ -32,32 +32,32 @@ export class NeisMealApi implements INeisMealApi {
   async list(
     request: ListNeisMealRequestQuery,
   ): Promise<ListEntity<NeisMealRowDto>> {
-    const mealDietInfos = await this._api.get({
+    const response = await this._api.get({
       api_kind: this._api_kind,
       url: this._NEIS_URL,
       params: { KEY: this._getKey(), ...request.data },
     });
 
-    const infoArray = mealDietInfos.mealServiceDietInfo;
+    if (response.RESULT) {
+      const { CODE, MESSAGE } = response.RESULT;
+
+      if (CODE === 'INFO-200') {
+        return new ListEntity({ data: [], totalCount: 0 });
+      }
+      if (CODE.startsWith('ERROR')) {
+        throw new InternalServerErrorException(`[NEIS ERROR] ${MESSAGE}`);
+      }
+      if (CODE === 'INFO-300') {
+        throw new BadRequestException(`[NEIS INFO-300] ${MESSAGE}`);
+      }
+    }
+
+    const infoArray = response[this._api_kind];
 
     const head = infoArray?.[0]?.head || [];
     const rows = infoArray?.[1]?.row || [];
 
     const totalCount = head[0]?.list_total_count || 0;
-    const resultErrorCode = mealDietInfos.RESULT?.CODE;
-    const resultMessage = mealDietInfos.RESULT?.MESSAGE;
-
-    if (resultErrorCode === 'INFO-200') {
-      return new ListEntity({ data: [], totalCount: 0 });
-    }
-
-    if (resultErrorCode && resultErrorCode.startsWith('ERROR')) {
-      throw new InternalServerErrorException(`[NEIS ERROR] ${resultMessage}`);
-    }
-
-    if (resultErrorCode === 'INFO-300') {
-      throw new BadRequestException(`[NEIS INFO-300] ${resultMessage}`);
-    }
 
     return new ListEntity({
       data: rows.map((mdi) => this._toModel(mdi)),
