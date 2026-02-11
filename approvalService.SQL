@@ -47,6 +47,7 @@ CREATE INDEX idx_doc ON APPROVAL_DOCUMENT (status, current_step);
 SELECT 
     d.document_id,
     d.title,
+    d.content,
     u_req.name AS requester_name,  
     s.step_order AS my_step_order,  
     d.high_step AS high_step,
