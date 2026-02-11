@@ -14,14 +14,15 @@ export class SchoolMealService {
 
   async getMonthlyAllergyMeals(command: GetMonthlyAllergyInputCommand) {
     const mealCodes = ['1', '2', '3'];
+    const userAllergySet = new Set(command.allergy_id.map(String));
 
-    const mealAllResults = await Promise.all(
+    const mealResults = await Promise.all(
       mealCodes.map((code) =>
         this._neisMealApi.list({
           data: {
             Type: 'json',
             pIndex: 1,
-            pSize: 100,
+            pSize: 100, // 여유롭게 100개 조회
             ATPT_OFCDC_SC_CODE: command.atpt_ofcdc_sc_code,
             SD_SCHUL_CODE: command.sd_schul_code,
             MLSV_YMD: command.mlsv_ym,
@@ -31,14 +32,15 @@ export class SchoolMealService {
       ),
     );
 
-    const allMeals = mealAllResults.flatMap((res) => res.data);
+    const allMealResult = mealResults.flatMap((res) => res.data);
 
-    const filterRows = allMeals.filter((item) => {
+    // 알레르기 필터링
+    const filterRows = allMealResult.filter((item) => {
       if (!item.ddish_nm) return false;
       const allergiesInMenu: string[] = item.ddish_nm.match(/\d+/g) || [];
 
-      return command.allergy_id.some((id) =>
-        allergiesInMenu.includes(String(id)),
+      return allergiesInMenu.some((menuAllergy) =>
+        userAllergySet.has(menuAllergy),
       );
     });
 
